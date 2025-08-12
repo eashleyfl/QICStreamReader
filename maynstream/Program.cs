@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using QicUtils;
+using System;
 using System.IO;
 using System.Text;
 
 /// <summary>
 /// 
 /// Decoder for tape images made by old versions of MaynStream backup software, from Maynard Electronics.
+/// These backups are vaguely identifiable by the bytes 0x1 0x0 at the beginning of the file, and likely
+/// a human-readable volume label at offset 0xAC.
 /// 
 /// Copyright Dmitry Brant, 2019-
 /// 
@@ -136,7 +138,7 @@ namespace maynstream
             // Read the volume header
             stream.Read(bytes, 0, BLOCK_SIZE);
 
-            string volName = QicUtils.Utils.GetNullTerminatedString(Encoding.ASCII.GetString(bytes, 0xAC, 0x80));
+            string volName = Utils.GetNullTerminatedString(Encoding.ASCII.GetString(bytes, 0xAC, 0x80));
             Console.WriteLine("Backup label: " + volName);
 
             Directory.CreateDirectory(baseDirectory);
@@ -210,7 +212,7 @@ namespace maynstream
 
                             if (bytesLeft == header.Size && !header.Continuation)
                             {
-                                if (!QicUtils.Utils.VerifyFileFormat(header.Name, bytes))
+                                if (!Utils.VerifyFileFormat(header.Name, bytes))
                                 {
                                     Console.WriteLine(stream.Position.ToString("X") + " -- Warning: file format doesn't match: " + fileName);
                                     Console.ReadKey();
